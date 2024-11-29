@@ -1,29 +1,115 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
 import HomePage from './pages/Home';
 import ProfilePage from './pages/Profile';
-import AboutPage from './pages/About'
-import FeedbackPage from './pages/Feedback'
-import TasksPage from './pages/Tasks'
+import AboutPage from './pages/About';
+import FeedbackPage from './pages/Feedback';
+import TasksPage from './pages/Tasks';
 import SettingsPage from './pages/Settings';
-import ClassDetailsPage from './pages/ClassDetails'
+import ClassDetailsPage from './pages/ClassDetails';
 import CoursesPage from './pages/Courses';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import InstructorDashboard from './pages/InstructorDashboard';
+
+// Utility function to get token and decode JWT
+const getTokenData = () => {
+  const token = localStorage.getItem('jwt');
+  if (!token) return null;
+
+  try {
+    // Decode the token (basic implementation)
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload; // Contains { sub, role, iat, exp }
+  } catch {
+    return null;
+  }
+};
+
+// Wrapper for protected routes
+const ProtectedRoute = ({ children, roleRequired }) => {
+  const tokenData = getTokenData();
+
+  // If no valid JWT, redirect to sign-in
+  if (!tokenData) return <Navigate to="/sign-in" replace />;
+
+  // If a specific role is required, check the role
+  if (roleRequired && !tokenData.role) return <Navigate to="/sign-in" replace />;
+
+  return children;
+};
+
+// Wrapper for guest-only routes
+const GuestRoute = ({ children }) => {
+  const tokenData = getTokenData();
+
+  // If already logged in, redirect to dashboard
+  if (tokenData) return <Navigate to="/dashboard" replace />;
+
+  return children;
+};
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<SignIn />} />
-        <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/sign-up" element={<SignUp />} />
+        {/* Guest-Only Routes */}
+        <Route
+          path="/"
+          element={
+            <GuestRoute>
+              <SignIn />
+            </GuestRoute>
+          }
+        />
+        <Route
+          path="/sign-in"
+          element={
+            <GuestRoute>
+              <SignIn />
+            </GuestRoute>
+          }
+        />
+        
 
         {/* Protected Routes */}
-        <Route path="/dashboard" element={<Dashboard />}>
+        <Route
+          path="/dashboard/*"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<HomePage />} />
+          <Route path="courses" element={<CoursesPage />} />
+          <Route path="class-details" element={<ClassDetailsPage />} />
+          <Route path="tasks" element={<TasksPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="feedback" element={<FeedbackPage />} />
+        </Route>
+        <Route
+          path="/sign-up"
+          element={
+            <ProtectedRoute roleRequired={true}>
+               <SignUp/>
+            </ProtectedRoute>
+          }
+        ></Route>
+        <Route
+          path="/instructor-dashboard/*"
+          element={
+            <ProtectedRoute roleRequired={true}>
+              <InstructorDashboard />
+              
+            </ProtectedRoute>
+          }
+        >
+          
+        
           <Route index element={<HomePage />} />
           <Route path="courses" element={<CoursesPage />} />
           <Route path="class-details" element={<ClassDetailsPage />} />

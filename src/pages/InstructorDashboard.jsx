@@ -1,5 +1,4 @@
 import * as React from 'react';
-
 import { alpha } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -11,7 +10,7 @@ import SideMenu from '../components/SideMenu';
 import AppTheme from '../shared-theme/AppTheme';
 import { Outlet } from 'react-router-dom';
 
-export default function Dashboard() {
+export default function InstructorDashboard() {
   return (
     <AppTheme >
       <CssBaseline enableColorScheme />
@@ -39,6 +38,7 @@ export default function Dashboard() {
             }}
           >
             <Header />
+            Instructor!!!
             <Outlet />
           </Stack>
         </Box>

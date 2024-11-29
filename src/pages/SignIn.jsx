@@ -1,11 +1,8 @@
 import * as React from 'react';
-import { Link as RouterLink } from 'react-router-dom'; // Import Link from react-router-dom
+import { Link as RouterLink, useNavigate } from 'react-router-dom'; // Import Link from react-router-dom
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Divider from '@mui/material/Divider';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import Link from '@mui/material/Link';
@@ -15,9 +12,9 @@ import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import ForgotPassword from './ForgotPassword.jsx';
-import { GoogleIcon,  SitemarkIcon } from '../components/CustomIcons.jsx';
 import AppTheme from '../shared-theme/AppTheme.jsx';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
+import axios from 'axios';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -62,11 +59,13 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function SignIn(props) {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
+  const [usernameError, setUsernameError] = React.useState(false);
+  const [usernameErrorMessage, setUsernameErrorMessage] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
+  const [errorMessage, setErrorMessage] = React.useState('');
   const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate(); // For navigation after successful login
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -76,44 +75,54 @@ export default function SignIn(props) {
     setOpen(false);
   };
 
-  const handleSubmit = (event) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent default form submission
+    
+    const username = event.target.username.value;
+    const password = event.target.password.value;
+  
+    // Basic client-side validation
+    if (!username || !password || password.length < 6) {
+      setUsernameError(!username);
+      setPasswordError(password.length < 6);
+      setErrorMessage('Please provide valid username and password.');
       return;
     }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
-
-  const validateInputs = () => {
-    const email = document.getElementById('email');
-    const password = document.getElementById('password');
-
-    let isValid = true;
-
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage('Please enter a valid email address.');
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage('');
+  
+    try {
+      // Send POST request to the login API
+      const response = await axios.post('http://localhost:8080/api/auth/login', {
+        username: username,
+        password,
+      });
+  
+      // Extract token and role from the response
+      const { token, user } = response.data; // Access the user object and token
+  
+      if (token) {
+        // Store JWT in localStorage
+        localStorage.setItem('jwt', token);
+        console.log('JWT stored in localStorage');
+        
+        // Navigate based on role (true = instructor, false = student)
+        if (user.role === true) {  // Role is true for instructor
+          navigate('/instructor-dashboard'); // Redirect to instructor dashboard
+        } else if (user.role === false) {  // Role is false for student
+          navigate('/dashboard'); // Redirect to student dashboard
+        } else {
+          setErrorMessage('Unexpected role received.');
+        }
+      } else {
+        setErrorMessage('Authentication failed: No token received.');
+      }
+    } catch (error) {
+      setErrorMessage('Invalid credentials. Please try again.');
+      console.error('Login failed', error);
     }
-
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage('');
-    }
-
-    return isValid;
   };
+  
+
+  
 
   return (
     <AppTheme {...props}>
@@ -121,7 +130,6 @@ export default function SignIn(props) {
       <SignInContainer direction="column" justifyContent="space-between">
         <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
         <Card variant="outlined">
-          
           <Typography
             component="h1"
             variant="h4"
@@ -141,20 +149,18 @@ export default function SignIn(props) {
             }}
           >
             <FormControl>
-              <FormLabel htmlFor="email">Email</FormLabel>
+              <FormLabel htmlFor="username">Username</FormLabel>
               <TextField
-                error={emailError}
-                helperText={emailErrorMessage}
-                id="email"
-                type="email"
-                name="email"
-                placeholder="your@email.com"
-                autoComplete="email"
-                autoFocus
+                error={usernameError}
+                helperText={usernameErrorMessage}
+                id="username"
+                type="username"
+                name="username"
+                placeholder="john"
                 required
                 fullWidth
                 variant="outlined"
-                color={emailError ? 'error' : 'primary'}
+                color={usernameError ? 'error' : 'primary'}
               />
             </FormControl>
             <FormControl>
@@ -166,24 +172,18 @@ export default function SignIn(props) {
                 placeholder="••••••"
                 type="password"
                 id="password"
-                autoComplete="current-password"
-                autoFocus
                 required
                 fullWidth
                 variant="outlined"
                 color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
+            
             <ForgotPassword open={open} handleClose={handleClose} />
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              onClick={validateInputs}
             >
               Sign in
             </Button>
@@ -197,28 +197,7 @@ export default function SignIn(props) {
               Forgot your password?
             </Link>
           </Box>
-          <Divider>or</Divider>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={() => alert('Sign in with Google')}
-              startIcon={<GoogleIcon />}
-            >
-              Sign in with Google
-            </Button>
-            <Typography sx={{ textAlign: 'center' }}>
-              Don&apos;t have an account?{' '}
-              <Link
-                component={RouterLink}
-                to="/sign-up"
-                variant="body2"
-                sx={{ alignSelf: 'center' }}
-              >
-                Sign up
-              </Link>
-            </Typography>
-          </Box>
+          
         </Card>
       </SignInContainer>
     </AppTheme>

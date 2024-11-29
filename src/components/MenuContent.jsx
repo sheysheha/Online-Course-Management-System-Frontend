@@ -13,7 +13,26 @@ import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import HelpRoundedIcon from '@mui/icons-material/HelpRounded';
 import { useNavigate } from 'react-router-dom';
+import {jwtDecode} from 'jwt-decode'; // Correct import
 
+// Hook to determine user role
+function useUserRole() {
+  const token = localStorage.getItem('jwt');
+  return React.useMemo(() => {
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        console.log(decodedToken); // For debugging, log the decoded token
+        return decodedToken.role; // Directly return the boolean role
+      } catch (error) {
+        console.error("Error decoding JWT. Ensure the token is valid.", error);
+      }
+    }
+    return false; // Default to non-instructor if token is absent or invalid
+  }, [token]);
+}
+
+// Main menu items
 const mainListItems = [
   { text: 'Home', icon: <HomeRoundedIcon />, route: '/dashboard' },
   { text: 'Courses', icon: <AnalyticsRoundedIcon />, route: '/dashboard/courses' },
@@ -21,6 +40,7 @@ const mainListItems = [
   { text: 'Tasks', icon: <AssignmentRoundedIcon />, route: '/dashboard/tasks' },
 ];
 
+// Secondary menu items
 const secondaryListItems = [
   { text: 'Settings', icon: <SettingsRoundedIcon />, route: '/dashboard/settings' },
   { text: 'About', icon: <InfoRoundedIcon />, route: '/dashboard/about' },
@@ -28,15 +48,24 @@ const secondaryListItems = [
 ];
 
 export default function MenuContent() {
-  const navigate = useNavigate(); // Initialize the navigate function
+  const navigate = useNavigate(); // Initialize navigation
+  const isInstructor = useUserRole(); // Get the user's role (boolean)
+
+  // Filter main list items based on the role
+  const filteredMainListItems = isInstructor
+    ? mainListItems
+    : mainListItems.filter(item => item.text !== 'Tasks');
 
   return (
     <Stack sx={{ flexGrow: 1, p: 1, justifyContent: 'space-between' }}>
       {/* Main List */}
       <List dense>
-        {mainListItems.map((item, index) => (
+        {filteredMainListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton onClick={() => navigate(item.route)}> {/* Navigate on click */}
+            <ListItemButton
+              onClick={() => navigate(item.route)}
+              aria-label={item.text} // Accessibility
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
@@ -44,11 +73,14 @@ export default function MenuContent() {
         ))}
       </List>
 
-      {/* Secondary List */}
+      {/* Secondary List (Visible to all users) */}
       <List dense>
         {secondaryListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton onClick={() => navigate(item.route)}> {/* Navigate on click */}
+            <ListItemButton
+              onClick={() => navigate(item.route)}
+              aria-label={item.text} // Accessibility
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
