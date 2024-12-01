@@ -10,9 +10,11 @@ import AboutPage from './pages/About';
 import FeedbackPage from './pages/Feedback';
 import TasksPage from './pages/Tasks';
 import SettingsPage from './pages/Settings';
-import ClassDetailsPage from './pages/ClassDetails';
+import AddCourses from './pages/AddCourses';
 import CoursesPage from './pages/Courses';
 import InstructorDashboard from './pages/InstructorDashboard';
+import RegisterStudents from './pages/RegisterStudents';
+import AddCourseMaterial from './pages/AddCourseMaterial';
 
 // Utility function to get token and decode JWT
 const getTokenData = () => {
@@ -85,11 +87,11 @@ function App() {
         >
           <Route index element={<HomePage />} />
           <Route path="courses" element={<CoursesPage />} />
-          <Route path="class-details" element={<ClassDetailsPage />} />
           <Route path="tasks" element={<TasksPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="feedback" element={<FeedbackPage />} />
+          
         </Route>
         <Route
           path="/sign-up"
@@ -104,7 +106,9 @@ function App() {
           element={
             <ProtectedRoute roleRequired={true}>
               <InstructorDashboard />
-              
+              <Route path="register-student" element={<RegisterStudents />} />
+              <Route path="add-courses" element={<AddCourses/>} />
+              <Route path="add-course-material" element={<AddCourseMaterial/>} />
             </ProtectedRoute>
           }
         >
@@ -112,7 +116,8 @@ function App() {
         
           <Route index element={<HomePage />} />
           <Route path="courses" element={<CoursesPage />} />
-          <Route path="class-details" element={<ClassDetailsPage />} />
+          <Route path="add-courses" element={<AddCourses />} />
+          
           <Route path="tasks" element={<TasksPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="about" element={<AboutPage />} />

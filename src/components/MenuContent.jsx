@@ -35,9 +35,12 @@ function useUserRole() {
 // Main menu items
 const mainListItems = [
   { text: 'Home', icon: <HomeRoundedIcon />, route: '/dashboard' },
-  { text: 'Courses', icon: <AnalyticsRoundedIcon />, route: '/dashboard/courses' },
-  { text: 'Class Details', icon: <PeopleRoundedIcon />, route: '/dashboard/class-details' },
+  { text: 'Courses', icon: <PeopleRoundedIcon />, route: '/dashboard/courses' },
+  { text: 'Add Courses', icon: <PeopleRoundedIcon />, route: '/dashboard/addCourses' },
   { text: 'Tasks', icon: <AssignmentRoundedIcon />, route: '/dashboard/tasks' },
+  { text: 'Register Student', icon: <PeopleRoundedIcon/>, route: '/dashboard/registered-students' },
+  { text: 'Add Course Material', icon: <AssignmentRoundedIcon />, route: '/dashboard/add-course-material' },
+
 ];
 
 // Secondary menu items
@@ -52,9 +55,11 @@ export default function MenuContent() {
   const isInstructor = useUserRole(); // Get the user's role (boolean)
 
   // Filter main list items based on the role
+  const excludedItems = ['Add Courses', 'Register Student', 'Add Course Material'];
+
   const filteredMainListItems = isInstructor
     ? mainListItems
-    : mainListItems.filter(item => item.text !== 'Tasks');
+    : mainListItems.filter(item => !excludedItems.includes(item.text));
 
   return (
     <Stack sx={{ flexGrow: 1, p: 1, justifyContent: 'space-between' }}>
