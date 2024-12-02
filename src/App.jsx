@@ -74,7 +74,6 @@ function App() {
             </GuestRoute>
           }
         />
-        
 
         {/* Protected Routes */}
         <Route
@@ -93,35 +92,33 @@ function App() {
           <Route path="feedback" element={<FeedbackPage />} />
           
         </Route>
+
         <Route
           path="/sign-up"
           element={
             <ProtectedRoute roleRequired={true}>
-               <SignUp/>
+              <SignUp />
             </ProtectedRoute>
           }
-        ></Route>
+        />
+
         <Route
           path="/instructor-dashboard/*"
           element={
             <ProtectedRoute roleRequired={true}>
               <InstructorDashboard />
-              <Route path="register-student" element={<RegisterStudents />} />
-              <Route path="add-courses" element={<AddCourses/>} />
-              <Route path="add-course-material" element={<AddCourseMaterial/>} />
             </ProtectedRoute>
           }
         >
-          
-        
           <Route index element={<HomePage />} />
           <Route path="courses" element={<CoursesPage />} />
           <Route path="add-courses" element={<AddCourses />} />
-          
+          <Route path="add-course-material" element={<AddCourseMaterial />} />
           <Route path="tasks" element={<TasksPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="feedback" element={<FeedbackPage />} />
+          <Route path="register-student" element={<RegisterStudents />} />
         </Route>
       </Routes>
     </Router>

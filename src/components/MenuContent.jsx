@@ -36,7 +36,7 @@ function useUserRole() {
 const mainListItems = [
   { text: 'Home', icon: <HomeRoundedIcon />, route: '/dashboard' },
   { text: 'Courses', icon: <PeopleRoundedIcon />, route: '/dashboard/courses' },
-  { text: 'Add Courses', icon: <PeopleRoundedIcon />, route: '/dashboard/addCourses' },
+  { text: 'Add Courses', icon: <PeopleRoundedIcon />, route: '/dashboard/add-courses' },
   { text: 'Tasks', icon: <AssignmentRoundedIcon />, route: '/dashboard/tasks' },
   { text: 'Register Student', icon: <PeopleRoundedIcon/>, route: '/dashboard/registered-students' },
   { text: 'Add Course Material', icon: <AssignmentRoundedIcon />, route: '/dashboard/add-course-material' },

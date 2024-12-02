@@ -105,9 +105,9 @@ export default function SignIn(props) {
         console.log('JWT stored in localStorage');
         
         // Navigate based on role (true = instructor, false = student)
-        if (user.role === true) {  // Role is true for instructor
+        if (user.role === 'INSTRUCTOR') {  
           navigate('/instructor-dashboard'); // Redirect to instructor dashboard
-        } else if (user.role === false) {  // Role is false for student
+        } else if (user.role === 'STUDENT') {  
           navigate('/dashboard'); // Redirect to student dashboard
         } else {
           setErrorMessage('Unexpected role received.');
