@@ -1,41 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Grid, Typography, Card, CardContent, Button, LinearProgress } from '@mui/material';
+import { Link } from 'react-router-dom';  // For navigation
 
-const courses = [
-  { title: "Introduction to TalentLMS", status: "Completed" },
-  { title: "Advanced Features of TalentLMS", status: "Completed" },
-  { title: "Content and TalentLMS", status: "Completed" },
-  { title: "Getting Started With eLearning", status: "Completed" },
-  { title: "Employee Training 101", status: "Completed" },
-  { title: "SCORM Example Course", status: "0%" },
-  { title: "Introduction to TalentLMS", status: "Completed" },
-  { title: "Advanced Features of TalentLMS", status: "Completed" },
-  { title: "Content and TalentLMS", status: "Completed" },
-  { title: "Getting Started With eLearning", status: "Completed" },
-  { title: "Employee Training 101", status: "Completed" },
-  { title: "SCORM Example Course", status: "0%" },
-];
+function Courses() {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-function Courses () {
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/courses');
+        const data = await response.json();
+        setCourses(data);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchCourses();
+  }, []);
+
+  if (loading) {
+    return <Typography variant="h6" sx={{ textAlign: 'center', padding: '2rem' }}>Loading courses...</Typography>;
+  }
 
   return (
     <Box sx={{ padding: '2rem' }}>
       <Grid container spacing={2}>
-        {courses.map((course, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card className='bg-blue-400' sx={{ height: `150px`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        {courses.map((course) => (
+          <Grid item xs={12} sm={6} md={4} key={course.id}>
+            <Card sx={{ height: '175px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <CardContent>
                 <Typography variant="h6">{course.title}</Typography>
-                <Typography variant="body2" color="textSecondary">{course.status}</Typography>
-                {course.status === "0%" && (
-                  <LinearProgress variant="determinate" value={0} sx={{ marginTop: '1rem' }} />
-                )}
-                {course.status === "Completed" && (
-                  <Button variant="contained" color="success" sx={{ marginTop: '1rem' }}>
-                    Join
+                <Typography variant="body2" color="textSecondary" sx={{ marginBottom: '1rem' }}>
+                  {course.description}
+                </Typography>
+
+                
+                {/* Button to navigate to Course Materials */}
+                <Link to={`/dashboard/course-materials/${course.id}`} style={{ textDecoration: 'none' }}>
+                  <Button variant="outlined" sx={{ marginTop: '1rem' }}>
+                    View Materials
                   </Button>
-                )}
+                </Link>
               </CardContent>
             </Card>
           </Grid>
@@ -43,6 +52,6 @@ function Courses () {
       </Grid>
     </Box>
   );
-};
+}
 
 export default Courses;

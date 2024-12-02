@@ -103,6 +103,7 @@ export default function SignIn(props) {
         // Store JWT in localStorage
         localStorage.setItem('jwt', token);
         console.log('JWT stored in localStorage');
+        console.log(user);
         
         // Navigate based on role (true = instructor, false = student)
         if (user.role === 'INSTRUCTOR') {  
